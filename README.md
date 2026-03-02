@@ -4,12 +4,12 @@ Este repositório contém a implementação de um sistema de comunicação via s
 
 O objetivo é explorar os fundamentos de comunicação em rede usando o módulo socket da biblioteca padrão do Python, abordando conceitos como:
 
-Criação e configuração de sockets
+- Criação e configuração de sockets
 
-Conexão entre cliente e servidor
+- Conexão entre cliente e servidor
 
-Troca de mensagens
+- Troca de mensagens
 
-Encerramento seguro da conexão
+- Encerramento seguro da conexão
 
 Este projeto é voltado para fins de estudo e compreensão prática de arquitetura cliente-servidor e protocolos de comunicação em redes.
