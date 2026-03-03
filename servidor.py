@@ -1,3 +1,2 @@
-print("Ola")
-
+import socket
 
