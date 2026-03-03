@@ -1,79 +1,73 @@
 import socket
-<<<<<<< HEAD
 import threading
 
 HOST = '0.0.0.0'
 PORT = 5000
 
-clients = []
+clientes = []
+nomes = {}
 
-def handle_client(conn, addr):
-    print(f"Novo cliente conectado: {addr}")
-    clients.append(conn)
-
-    while True:
+def broadcast(mensagem):
+    for cliente in clientes:
         try:
-            msg = conn.recv(1024)
-            if not msg:
+            cliente.send(mensagem.encode())
+        except:
+            remover_cliente(cliente)
+
+def remover_cliente(cliente):
+    if cliente in clientes:
+        nome = nomes.get(cliente, "Desconhecido")
+        clientes.remove(cliente)
+        cliente.close()
+        print(f"{nome} saiu do chat.")
+        broadcast(f"{nome} saiu do chat.")
+        nomes.pop(cliente, None)
+
+def lidar_cliente(cliente):
+    try:
+        nome = cliente.recv(1024).decode()
+        nomes[cliente] = nome
+        clientes.append(cliente)
+
+        print(f"{nome} entrou no chat.")
+        broadcast(f"{nome} entrou no chat.")
+
+        while True:
+            mensagem = cliente.recv(1024).decode()
+
+            if mensagem.lower() == "sair":
+                remover_cliente(cliente)
                 break
 
-            print(f"{addr}: {msg.decode()}")
+            mensagem_formatada = f"{nome}: {mensagem}"
+            print(mensagem_formatada)
+            broadcast(mensagem_formatada)
 
-            # envia mensagem para todos os outros clientes
-            for client in clients:
-                if client != conn:
-                    client.sendall(msg)
+    except:
+        remover_cliente(cliente)
 
-        except:
-            break
+def enviar_mensagem_servidor():
+    while True:
+        mensagem = input()
+        mensagem_formatada = f"[SERVIDOR]: {mensagem}"
+        print(mensagem_formatada)
+        broadcast(mensagem_formatada)
 
-    print(f"Cliente desconectado: {addr}")
-    clients.remove(conn)
-    conn.close()
+def iniciar_servidor():
+    servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    servidor.bind((HOST, PORT))
+    servidor.listen()
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server.bind((HOST, PORT))
-server.listen()
+    print("Servidor iniciado...")
 
-print("Servidor rodando...")
+    # Thread para o servidor poder falar
+    thread_input = threading.Thread(target=enviar_mensagem_servidor)
+    thread_input.daemon = True
+    thread_input.start()
 
-while True:
-    conn, addr = server.accept()
-    thread = threading.Thread(target=handle_client, args=(conn, addr))
-    thread.start()
-=======
+    while True:
+        cliente, endereco = servidor.accept()
+        thread = threading.Thread(target=lidar_cliente, args=(cliente,))
+        thread.start()
 
-HOST = '127.0.0.1'  # endereço local
-PORT = 5000         # porta de comunicação
-
-# cria o socket
-servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# associa o socket ao endereço e porta
-servidor.bind((HOST, PORT))
-
-# coloca o servidor para ouvir conexões
-servidor.listen()
-
-print("Servidor aguardando conexão...")
-
-# aceita conexão do cliente
-conn, addr = servidor.accept()
-
-print(f"Conectado por {addr}")
-
-while True:
-    dados = conn.recv(1024)
-    if not dados:
-        break
-    
-    mensagem = dados.decode()
-    print("Cliente:", mensagem)
-    
-    resposta = "Mensagem recebida com sucesso!"
-    conn.sendall(resposta.encode())
-
-conn.close()
-
->>>>>>> 5dca386bc797ea0abd2a1a7d89405177a5154711
+iniciar_servidor()
