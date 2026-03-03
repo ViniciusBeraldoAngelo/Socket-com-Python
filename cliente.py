@@ -7,12 +7,16 @@ cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 cliente.connect((HOST, PORT))
 
-mensagem = input("Digite uma mensagem para o servidor: ")
+while True:
+    mensagem = input("Você: ")
+    
+    if mensagem.lower() == "sair":
+        break
 
-cliente.sendall(mensagem.encode())
+    cliente.sendall(mensagem.encode())
 
-resposta = cliente.recv(1024)
+    resposta = cliente.recv(1024)
 
-print("Servidor respondeu:", resposta.decode())
+    print("Servidor:", resposta.decode())
 
 cliente.close()
