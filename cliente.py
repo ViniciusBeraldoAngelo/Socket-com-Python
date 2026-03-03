@@ -1,22 +1,18 @@
 import socket
-import threading
 
 HOST = '127.0.0.1'
 PORT = 5000
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect((HOST, PORT))
+cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-def receive_messages():
-    while True:
-        try:
-            msg = client.recv(1024)
-            print(msg.decode())
-        except:
-            break
+cliente.connect((HOST, PORT))
 
-threading.Thread(target=receive_messages).start()
+mensagem = input("Digite uma mensagem para o servidor: ")
 
-while True:
-    message = input()
-    client.sendall(message.encode())
+cliente.sendall(mensagem.encode())
+
+resposta = cliente.recv(1024)
+
+print("Servidor respondeu:", resposta.decode())
+
+cliente.close()
